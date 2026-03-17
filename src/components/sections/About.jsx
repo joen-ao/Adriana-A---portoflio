@@ -1,6 +1,6 @@
 import AnimatedSection from '../ui/AnimatedSection'
 import SectionLabel from '../ui/SectionLabel'
-import aboutImage from '../../utils/about-image.jpg'
+import aboutImage from '../../utils/about-image.JPEG'
 
 const ABOUT_IMAGE = aboutImage
 

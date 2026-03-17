@@ -17,7 +17,7 @@ export const techStack = [
   },
   {
     name: 'Excel',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/3/34/Microsoft_Office_Excel_%282019%E2%80%93present%29.svg',
+    logo: 'https://img.icons8.com/color/96/microsoft-excel-2019--v1.png',
   },
 ]
 
