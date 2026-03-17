@@ -1,6 +1,6 @@
 import { ArrowDown } from 'lucide-react'
 import Button from '../ui/Button'
-import heroImage from '../../utils/hero-image.png'
+import heroImage from '../../utils/hero-image.JPG'
 
 const HERO_IMAGE = heroImage
 
