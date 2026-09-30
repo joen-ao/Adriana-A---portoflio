@@ -1,63 +1,374 @@
 ---
+import Icon from './Icon.astro';
 import ProjectCard from './ProjectCard.astro';
+import ProjectFeatured from './ProjectFeatured.astro';
+import ProjectCase from './ProjectCase.astro';
 import { getUi } from '../i18n/ui.js';
 import { projects } from '../i18n/projects.js';
 
 const { lang = 'en' } = Astro.props;
 const t = getUi(lang);
+
+const featured = projects.find((p) => p.featured) ?? projects[0];
+const counts = Object.fromEntries(
+  t.projects.filters.map((f) => [
+    f.key,
+    f.key === 'all' ? projects.length : projects.filter((p) => p.category === f.key).length,
+  ])
+);
+// In the unfiltered view the first two non-featured projects get the wide cards.
+let rest = 0;
+const sizeFor = (project) => (project === featured ? 'md' : rest++ < 2 ? 'lg' : 'md');
 ---
 
 <section id="projects" class="section-pad scroll-mt-24">
   <div class="container-page">
-    <header class="max-w-2xl" data-reveal>
-      <p class="eyebrow mb-3">{t.projects.eyebrow}</p>
-      <h2 class="h-section">{t.projects.heading}</h2>
-      <p class="mt-4 text-lg text-ink/70">{t.projects.intro}</p>
+    <header class="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between" data-reveal>
+      <div class="max-w-2xl">
+        <p class="eyebrow mb-3">{t.projects.eyebrow}</p>
+        <h2 class="h-section">{t.projects.heading}</h2>
+        <p class="mt-4 text-lg text-ink/70">{t.projects.intro}</p>
+      </div>
+
+      <!-- Filter: enhances with JS. Without JS every project stays visible. -->
+      <div
+        class="filters -mx-6 flex gap-2 overflow-x-auto px-6 md:mx-0 md:flex-wrap md:px-0 lg:flex-none lg:flex-nowrap"
+        role="group"
+        aria-label={t.projects.filterLabel}
+      >
+        {
+          t.projects.filters.map((f, i) => (
+            <button
+              type="button"
+              class="filter-btn inline-flex min-h-11 flex-none items-center gap-2 whitespace-nowrap rounded-full border border-border px-4 text-sm font-medium text-ink/80 transition-colors hover:border-forest hover:text-forest aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-cream"
+              data-filter={f.key}
+              aria-pressed={i === 0 ? 'true' : 'false'}
+            >
+              {f.label}
+              <span class="text-xs opacity-70">{counts[f.key]}</span>
+            </button>
+          ))
+        }
+      </div>
     </header>
 
-    <!-- Filter: enhances with JS. Without JS every project stays visible. -->
-    <div
-      class="filters mt-8 flex flex-wrap gap-2"
-      role="group"
-      aria-label={t.projects.filterLabel}
-      data-reveal
-    >
+    <p
+      class="sr-only"
+      aria-live="polite"
+      data-projects-status
+      data-one={t.projects.resultOne}
+      data-many={t.projects.resultMany}
+    ></p>
+
+    <div class="mt-10 md:mt-14" data-projects-featured data-reveal>
+      <ProjectFeatured project={featured} lang={lang} />
+    </div>
+
+    <p class="mt-8 flex items-center justify-end gap-1.5 text-[0.8125rem] text-stone md:hidden" aria-hidden="true">
+      {t.projects.swipeHint}
+      <Icon name="arrow-right" size={14} stroke-width={1.8} />
+    </p>
+
+    <ul class="projects-grid mt-3 md:mt-8" data-projects-grid>
       {
-        t.projects.filters.map((f, i) => (
-          <button
-            type="button"
-            class="filter-btn rounded-full border border-border px-4 py-2 text-sm text-ink/75 transition-colors hover:border-forest hover:text-forest aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-cream"
-            data-filter={f.key}
-            aria-pressed={i === 0 ? 'true' : 'false'}
+        projects.map((project) => (
+          <li
+            class="project-item"
+            data-category={project.category}
+            data-size={sizeFor(project)}
+            data-featured={project === featured ? '' : undefined}
           >
-            {f.label}
-          </button>
+            <ProjectCard project={project} lang={lang} />
+          </li>
         ))
       }
-    </div>
+    </ul>
 
-    <div class="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
-      {projects.map((project) => <ProjectCard project={project} lang={lang} />)}
+    <div
+      class="mt-12 flex flex-col gap-4 border-t border-border pt-8 sm:flex-row sm:items-center sm:justify-between md:mt-16"
+      data-reveal
+    >
+      <p class="font-serif text-2xl text-ink">{t.projects.ctaTitle}</p>
+      <a href="#contact" class="btn-secondary min-h-12 self-start sm:self-auto">
+        {t.projects.ctaButton}
+        <Icon name="arrow-right" size={16} stroke-width={1.8} />
+      </a>
     </div>
   </div>
+
+  {
+    projects.map((project, i) => (
+      <ProjectCase project={project} lang={lang} index={i} total={projects.length} />
+    ))
+  }
 </section>
 
+<style>
+  /* Mobile: a horizontal, snap-scrolling rail so the section stays short. */
+  .projects-grid {
+    display: flex;
+    gap: 1rem;
+    margin-inline: -1.5rem;
+    padding: 0 1.5rem 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1.5rem;
+    scrollbar-width: none;
+  }
+  .projects-grid::-webkit-scrollbar {
+    display: none;
+  }
+  .project-item {
+    display: flex;
+    flex: 0 0 min(84%, 21rem);
+    scroll-snap-align: start;
+    --media-h: 12.5rem;
+    --media-pad: 1.25rem;
+    --phone-w: 4.5rem;
+  }
+  .project-item[hidden],
+  .projects-grid:not([data-filtered]) .project-item[data-featured] {
+    display: none;
+  }
+  .filters {
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 2rem;
+      margin-inline: 0;
+      padding: 0;
+      overflow: visible;
+    }
+    .project-item {
+      grid-column: span 3;
+      --media-h: 15rem;
+      --media-pad: 1.5rem;
+      --phone-w: 5.25rem;
+    }
+  }
+
+  /* Desktop: 2 wide cards, then 3; any filter falls back to an even 3-up grid. */
+  @media (min-width: 1024px) {
+    .project-item {
+      grid-column: span 2;
+      --media-h: 14.75rem;
+    }
+    .projects-grid:not([data-filtered]) .project-item[data-size='lg'] {
+      grid-column: span 3;
+      --media-h: 20.5rem;
+      --media-pad: 2rem;
+      --phone-w: 7rem;
+    }
+  }
+</style>
+
+<style is:global>
+  /* "View case" needs JS to open the dialog; without it the card keeps its site link. */
+  .case-open {
+    display: none;
+  }
+  .js .case-open {
+    display: inline-flex;
+  }
+  html.case-lock {
+    overflow: hidden;
+  }
+
+  .case-dialog {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #fafaf7;
+    color: #161616;
+  }
+  .case-dialog::backdrop {
+    background: rgba(22, 22, 22, 0.62);
+    backdrop-filter: blur(3px);
+  }
+  .case-panel {
+    display: grid;
+    height: 100%;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: 'bar' 'media' 'body' 'foot';
+    --media-h: 13rem;
+    --media-pad: 1.25rem;
+    --phone-w: 5rem;
+  }
+  .case-panel__media {
+    grid-area: media;
+  }
+  .case-panel__bar {
+    grid-area: bar;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem 0.75rem 1.5rem;
+    border-bottom: 1px solid #e1dace;
+  }
+  .case-panel__body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    padding: 1.75rem 1.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .case-panel__foot {
+    grid-area: foot;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e1dace;
+  }
+  .case-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    border: 1px solid #e1dace;
+    color: #161616;
+    transition: border-color 0.2s ease;
+  }
+  .case-icon-btn:hover {
+    border-color: #2d4a3e;
+  }
+  .case-icon-btn--dark {
+    border-color: #161616;
+    background: #161616;
+    color: #fafaf7;
+  }
+
+  @media (min-width: 1024px) {
+    .case-dialog {
+      width: min(75rem, calc(100% - 4rem));
+      height: min(49rem, calc(100% - 4rem));
+      margin: auto;
+      border-radius: 1.5rem;
+      box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.6);
+    }
+    .case-panel {
+      grid-template-columns: minmax(0, 11fr) minmax(0, 9fr);
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      grid-template-areas: 'media bar' 'media body' 'media foot';
+      --media-h: 100%;
+      --media-pad: 3rem;
+      --phone-w: 10.5rem;
+    }
+    .case-panel__bar {
+      padding: 1.25rem 1.5rem 1.25rem 2.5rem;
+    }
+    .case-panel__body {
+      padding: 2rem 2.5rem;
+    }
+    .case-panel__foot {
+      padding: 1.125rem 2.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .case-dialog[open] {
+      animation: case-in 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    @keyframes case-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+</style>
+
 <script>
-  const group = document.querySelector('.filters');
-  if (group) {
-    const buttons = Array.from(group.querySelectorAll('.filter-btn'));
-    const cards = Array.from(document.querySelectorAll('.project-card'));
+  const section = document.getElementById('projects');
+  const group = section?.querySelector('.filters');
+  const grid = section?.querySelector<HTMLElement>('[data-projects-grid]');
+  const featured = section?.querySelector<HTMLElement>('[data-projects-featured]');
+  const status = section?.querySelector<HTMLElement>('[data-projects-status]');
+
+  // Filters: "All" shows the featured card + the rest; any sector shows an even grid.
+  if (group && grid && featured) {
+    const buttons = Array.from(group.querySelectorAll<HTMLButtonElement>('.filter-btn'));
+    const items = Array.from(grid.querySelectorAll<HTMLElement>('.project-item'));
+    const one = status?.dataset.one ?? '';
+    const many = status?.dataset.many ?? '';
     group.addEventListener('click', (e) => {
-      const btn = e.target.closest('.filter-btn');
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.filter-btn');
       if (!btn) return;
-      const filter = btn.getAttribute('data-filter');
-      buttons.forEach((b) =>
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
-      );
-      cards.forEach((card) => {
-        const show = filter === 'all' || card.getAttribute('data-category') === filter;
-        card.hidden = !show;
+      const filter = btn.dataset.filter;
+      const all = filter === 'all';
+      buttons.forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+      grid.toggleAttribute('data-filtered', !all);
+      featured.hidden = !all;
+      let shown = 0;
+      items.forEach((item) => {
+        const show = all || item.dataset.category === filter;
+        item.hidden = !show;
+        if (show) shown++;
       });
+      grid.scrollLeft = 0;
+      if (status) {
+        const count = all ? items.length : shown;
+        status.textContent = count === 1 ? one : many.replace('{n}', String(count));
+      }
     });
   }
+
+  // Case dialogs: open from any "View case" button, step prev/next, restore focus on close.
+  const dialogs = Array.from(document.querySelectorAll<HTMLDialogElement>('dialog[data-case]'));
+  let trigger: HTMLElement | null = null;
+
+  const openCase = (slug: string | undefined) => {
+    const dialog = dialogs.find((d) => d.dataset.case === slug);
+    if (!dialog) return;
+    dialogs.forEach((d) => d.open && d.close());
+    dialog.showModal();
+    document.documentElement.classList.add('case-lock');
+  };
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const opener = target.closest<HTMLElement>('[data-case-open]');
+    if (opener) {
+      trigger = opener;
+      openCase(opener.dataset.caseOpen);
+      return;
+    }
+    const nav = target.closest<HTMLElement>('[data-case-nav]');
+    if (nav) {
+      const current = nav.closest('dialog');
+      const i = dialogs.indexOf(current as HTMLDialogElement);
+      const step = nav.dataset.caseNav === 'next' ? 1 : -1;
+      const next = dialogs[(i + step + dialogs.length) % dialogs.length];
+      openCase(next.dataset.case);
+      next.querySelector<HTMLElement>(`[data-case-nav="${nav.dataset.caseNav}"]`)?.focus();
+    }
+  });
+
+  dialogs.forEach((dialog) => {
+    // Click on the backdrop closes.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      if (dialogs.some((d) => d.open)) return; // switched to another case
+      document.documentElement.classList.remove('case-lock');
+      trigger?.focus();
+    });
+  });
 </script>
