@@ -59,8 +59,20 @@ const links = [
       </a>
     </div>
 
+    <!-- Mobile: language switch stays visible next to the menu button -->
+    <div class="flex items-center gap-2 lg:hidden">
+    <a
+      href={other}
+      class="inline-flex h-11 items-center gap-1.5 rounded-full border border-border px-3.5 text-sm font-medium text-ink transition-colors hover:border-forest hover:text-forest"
+      hreflang={lang === 'es' ? 'en' : 'es'}
+      aria-label={`${t.nav.langLabel}: ${t.nav.otherLangName}`}
+    >
+      <Icon name="globe" size={16} />
+      {t.nav.otherLang}
+    </a>
+
     <!-- Mobile menu: native <details>, works with JS disabled -->
-    <details class="menu lg:hidden">
+    <details class="menu">
       <summary
         class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-border text-ink"
         aria-label={t.nav.menu}
@@ -84,22 +96,15 @@ const links = [
             ))
           }
         </ul>
-        <div class="mt-4 flex flex-col gap-3 border-t border-border pt-4">
-          <a
-            href={other}
-            class="inline-flex items-center gap-2 px-3 text-sm text-ink/75"
-            hreflang={lang === 'es' ? 'en' : 'es'}
-          >
-            <Icon name="globe" size={16} />
-            {t.nav.otherLangName}
-          </a>
-          <a href={cvHref} download class="btn-primary">
+        <div class="mt-4 border-t border-border pt-4">
+          <a href={cvHref} download class="btn-primary w-full">
             <Icon name="download" size={16} />
             {t.nav.downloadCv}
           </a>
         </div>
       </div>
     </details>
+    </div>
   </nav>
 </header>
 
