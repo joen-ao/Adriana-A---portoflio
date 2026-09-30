@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: ['./src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx,vue,svelte}'],
   theme: {
     extend: {
       colors: {
@@ -12,26 +12,23 @@ export default {
           light:   '#3D6B5A',
         },
         charcoal: '#1A1A1A',
-        stone:    '#8C8279',
-        border:   '#E8E2D9',
+        ink:      '#161616',
+        stone:    '#6E655B',   // darkened from #8C8279 to pass AA on cream
+        sand:     '#B08D57',   // hospitality accent
+        slate:    '#3A4A5A',   // b2b accent
+        border:   '#E1DACE',
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans:  ['Inter', 'system-ui', 'sans-serif'],
       },
+      maxWidth: {
+        content: '72rem',
+      },
       transitionTimingFunction: {
         luxury: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-      },
-      animation: {
-        'fade-up': 'fadeUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards',
-      },
-      keyframes: {
-        fadeUp: {
-          '0%':   { opacity: '0', transform: 'translateY(2rem)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
       },
     },
   },
   plugins: [],
-}
+};

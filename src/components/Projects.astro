@@ -1,0 +1,63 @@
+---
+import ProjectCard from './ProjectCard.astro';
+import { getUi } from '../i18n/ui.js';
+import { projects } from '../i18n/projects.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+---
+
+<section id="projects" class="section-pad scroll-mt-24">
+  <div class="container-page">
+    <header class="max-w-2xl" data-reveal>
+      <p class="eyebrow mb-3">{t.projects.eyebrow}</p>
+      <h2 class="h-section">{t.projects.heading}</h2>
+      <p class="mt-4 text-lg text-ink/70">{t.projects.intro}</p>
+    </header>
+
+    <!-- Filter: enhances with JS. Without JS every project stays visible. -->
+    <div
+      class="filters mt-8 flex flex-wrap gap-2"
+      role="group"
+      aria-label={t.projects.filterLabel}
+      data-reveal
+    >
+      {
+        t.projects.filters.map((f, i) => (
+          <button
+            type="button"
+            class="filter-btn rounded-full border border-border px-4 py-2 text-sm text-ink/75 transition-colors hover:border-forest hover:text-forest aria-pressed:border-forest aria-pressed:bg-forest aria-pressed:text-cream"
+            data-filter={f.key}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          >
+            {f.label}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map((project) => <ProjectCard project={project} lang={lang} />)}
+    </div>
+  </div>
+</section>
+
+<script>
+  const group = document.querySelector('.filters');
+  if (group) {
+    const buttons = Array.from(group.querySelectorAll('.filter-btn'));
+    const cards = Array.from(document.querySelectorAll('.project-card'));
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+      const filter = btn.getAttribute('data-filter');
+      buttons.forEach((b) =>
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
+      );
+      cards.forEach((card) => {
+        const show = filter === 'all' || card.getAttribute('data-category') === filter;
+        card.hidden = !show;
+      });
+    });
+  }
+</script>

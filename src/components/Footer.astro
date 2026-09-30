@@ -1,0 +1,71 @@
+---
+import Icon from './Icon.astro';
+import { getUi } from '../i18n/ui.js';
+import { site } from '../i18n/site.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+const year = new Date().getFullYear();
+const home = lang === 'es' ? '/es/' : '/';
+
+const links = [
+  { href: '#projects', label: t.nav.projects },
+  { href: '#process', label: t.nav.process },
+  { href: '#services', label: t.nav.services },
+  { href: '#experience', label: t.nav.experience },
+  { href: '#contact', label: t.nav.contact },
+];
+---
+
+<footer class="border-t border-border bg-offwhite">
+  <div class="container-page flex flex-col gap-8 py-12 md:flex-row md:items-start md:justify-between">
+    <div>
+      <a href={home} class="font-serif text-xl font-semibold text-ink">Adriana Acevedo</a>
+      <p class="mt-2 text-sm text-stone">{t.footer.location}</p>
+      <p class="mt-1 text-sm text-stone">
+        &copy; {year} {site.name}. {t.footer.rights}
+      </p>
+    </div>
+
+    <div class="flex flex-col gap-5 md:items-end">
+      <nav aria-label={t.footer.location}>
+        <ul class="flex flex-wrap gap-x-5 gap-y-2 md:justify-end">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href} class="text-sm text-ink/70 transition-colors hover:text-forest">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="flex items-center gap-4">
+        <a
+          href={site.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="LinkedIn"
+          class="text-ink/60 transition-colors hover:text-forest"
+        >
+          <Icon name="linkedin" size={20} />
+        </a>
+        <a
+          href={`mailto:${site.email}`}
+          aria-label={t.contact.emailLabel}
+          class="text-ink/60 transition-colors hover:text-forest"
+        >
+          <Icon name="mail" size={20} />
+        </a>
+        <a
+          href="#top"
+          class="inline-flex items-center gap-1.5 text-sm text-ink/70 transition-colors hover:text-forest"
+        >
+          {t.footer.backToTop}
+          <Icon name="arrow-up" size={15} />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

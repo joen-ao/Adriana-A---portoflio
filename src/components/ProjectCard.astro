@@ -1,0 +1,81 @@
+---
+import Icon from './Icon.astro';
+import { getUi } from '../i18n/ui.js';
+
+const { project, lang = 'en' } = Astro.props;
+const t = getUi(lang);
+const p = project[lang] ?? project.en;
+const badge = project.live ? t.projects.badgeLive : t.projects.badgeProposal;
+---
+
+<article
+  class="project-card card group flex flex-col overflow-hidden transition-shadow duration-300 hover:shadow-[0_24px_50px_-30px_rgba(28,61,46,0.4)]"
+  data-category={project.category}
+  data-reveal
+>
+  <a
+    href={project.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="relative block overflow-hidden bg-cream"
+    aria-label={`${p.name} — ${t.projects.viewSiteAria}`}
+    tabindex="-1"
+  >
+    <img
+      src={project.image}
+      alt={p.alt}
+      width="1200"
+      height="750"
+      loading="lazy"
+      decoding="async"
+      class="aspect-[8/5] w-full object-cover transition-transform duration-500 ease-luxury group-hover:scale-[1.02]"
+    />
+    <span
+      class:list={[
+        'absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur',
+        project.live
+          ? 'bg-forest text-cream'
+          : 'border border-forest/30 bg-cream/90 text-forest',
+      ]}
+    >
+      {badge}
+    </span>
+  </a>
+
+  <div class="flex flex-1 flex-col p-6">
+    <h3 class="font-serif text-xl text-ink">{p.name}</h3>
+    <p class="mt-1 text-sm text-stone">{p.sector}</p>
+
+    <p class="mt-4 text-[0.95rem] leading-relaxed text-ink/80">{p.solved}</p>
+
+    <p class="mt-5 text-xs font-medium uppercase tracking-[0.14em] text-forest">
+      {t.projects.decisionsLabel}
+    </p>
+    <ul class="mt-2 space-y-2">
+      {
+        p.decisions.map((d) => (
+          <li class="flex gap-2.5 text-sm text-ink/75">
+            <span class="mt-2 h-1 w-1 flex-none rounded-full bg-forest" aria-hidden="true" />
+            <span>{d}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-6 border-t border-border pt-4">
+      <p class="text-xs text-stone">
+        <span class="font-medium text-ink/70">{t.projects.roleLabel}:</span> {p.role}
+      </p>
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-forest transition-colors hover:text-forest-deep"
+        aria-label={`${p.name} — ${t.projects.viewSiteAria}`}
+      >
+        {t.projects.viewSite}
+        <Icon name="external" size={15} />
+      </a>
+    </div>
+  </div>
+</article>

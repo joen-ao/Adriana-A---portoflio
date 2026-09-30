@@ -1,0 +1,62 @@
+---
+import { Image } from 'astro:assets';
+import heroPhoto from '../assets/hero.jpg';
+import Icon from './Icon.astro';
+import { getUi } from '../i18n/ui.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+---
+
+<section id="top" class="relative overflow-hidden">
+  <div class="container-page grid items-center gap-10 pb-14 pt-14 md:pb-20 md:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:pb-24 lg:pt-24">
+    <div class="max-w-2xl" data-reveal>
+      <p class="eyebrow mb-5">{t.hero.kicker}</p>
+      <h1 class="text-[1.75rem] leading-[1.12] tracking-tight [hyphens:none] sm:text-4xl md:text-5xl lg:text-[3.75rem]">
+        {t.hero.h1}
+      </h1>
+      <p class="mt-6 max-w-xl text-lg text-ink/75 md:text-xl">
+        {t.hero.value}
+      </p>
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="#projects" class="btn-primary">
+          {t.hero.ctaPrimary}
+          <Icon name="arrow-right" size={17} />
+        </a>
+        <a href="#contact" class="btn-secondary">{t.hero.ctaSecondary}</a>
+      </div>
+    </div>
+
+    <div class="relative mx-auto w-full max-w-md lg:max-w-none" data-reveal>
+      <div class="overflow-hidden rounded-3xl border border-border bg-offwhite shadow-[0_24px_60px_-30px_rgba(28,61,46,0.45)]">
+        <Image
+          src={heroPhoto}
+          alt={t.hero.photoAlt}
+          widths={[420, 640, 900]}
+          sizes="(min-width: 1024px) 46vw, (min-width: 640px) 28rem, 92vw"
+          loading="eager"
+          class="aspect-[4/5] w-full object-cover object-top"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Proof strip -->
+  <div class="border-y border-border bg-offwhite">
+    <dl class="container-page grid grid-cols-2 divide-x divide-border/70 md:grid-cols-4">
+      {
+        t.stats.map((s, i) => (
+          <div
+            class:list={[
+              'flex flex-col gap-1 py-7 pl-5 pr-4 md:py-8 md:pl-7',
+              i % 2 === 0 && 'pl-0 md:pl-7',
+            ]}
+          >
+            <dt class="font-serif text-3xl text-forest md:text-4xl">{s.value}</dt>
+            <dd class="text-sm text-ink/70">{s.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>

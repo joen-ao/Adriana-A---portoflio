@@ -1,0 +1,123 @@
+---
+import Icon from './Icon.astro';
+import { getUi } from '../i18n/ui.js';
+import { site } from '../i18n/site.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+const home = lang === 'es' ? '/es/' : '/';
+const other = lang === 'es' ? '/' : '/es/';
+const cvHref = lang === 'es' ? site.cv.es : site.cv.en;
+
+const links = [
+  { href: '#projects', label: t.nav.projects },
+  { href: '#process', label: t.nav.process },
+  { href: '#services', label: t.nav.services },
+  { href: '#experience', label: t.nav.experience },
+  { href: '#contact', label: t.nav.contact },
+];
+---
+
+<header class="sticky top-0 z-50 border-b border-border bg-cream/85 backdrop-blur-md">
+  <nav
+    class="container-page flex h-[4.5rem] items-center justify-between gap-4"
+    aria-label={lang === 'es' ? 'Principal' : 'Primary'}
+  >
+    <a href={home} class="font-serif text-lg font-semibold tracking-tight text-ink">
+      Adriana&nbsp;Acevedo
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden items-center gap-7 lg:flex">
+      {
+        links.map((l) => (
+          <li>
+            <a
+              href={l.href}
+              class="text-sm text-ink/75 transition-colors hover:text-forest"
+            >
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="hidden items-center gap-3 lg:flex">
+      <a
+        href={other}
+        class="inline-flex items-center gap-1.5 text-sm text-ink/75 transition-colors hover:text-forest"
+        hreflang={lang === 'es' ? 'en' : 'es'}
+        aria-label={`${t.nav.langLabel}: ${t.nav.otherLangName}`}
+      >
+        <Icon name="globe" size={16} />
+        {t.nav.otherLang}
+      </a>
+      <a href={cvHref} download class="btn-primary !px-5 !py-2.5">
+        <Icon name="download" size={16} />
+        {t.nav.downloadCv}
+      </a>
+    </div>
+
+    <!-- Mobile menu: native <details>, works with JS disabled -->
+    <details class="menu lg:hidden">
+      <summary
+        class="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-border text-ink"
+        aria-label={t.nav.menu}
+      >
+        <Icon name="menu" size={22} />
+      </summary>
+      <div
+        class="absolute left-0 right-0 top-[4.5rem] border-b border-border bg-cream px-6 py-6 shadow-sm"
+      >
+        <ul class="flex flex-col gap-1">
+          {
+            links.map((l) => (
+              <li>
+                <a
+                  href={l.href}
+                  class="block rounded-lg px-3 py-3 text-base text-ink hover:bg-forest/5 hover:text-forest"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="mt-4 flex flex-col gap-3 border-t border-border pt-4">
+          <a
+            href={other}
+            class="inline-flex items-center gap-2 px-3 text-sm text-ink/75"
+            hreflang={lang === 'es' ? 'en' : 'es'}
+          >
+            <Icon name="globe" size={16} />
+            {t.nav.otherLangName}
+          </a>
+          <a href={cvHref} download class="btn-primary">
+            <Icon name="download" size={16} />
+            {t.nav.downloadCv}
+          </a>
+        </div>
+      </div>
+    </details>
+  </nav>
+</header>
+
+<style>
+  .menu summary {
+    list-style: none;
+  }
+  .menu summary::-webkit-details-marker {
+    display: none;
+  }
+</style>
+
+<script>
+  // Close the mobile disclosure after a link is tapped (progressive enhancement).
+  const menu = document.querySelector('details.menu');
+  if (menu) {
+    menu.querySelectorAll('a').forEach((a) =>
+      a.addEventListener('click', () => menu.removeAttribute('open'))
+    );
+  }
+</script>

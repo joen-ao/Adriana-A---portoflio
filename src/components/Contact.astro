@@ -1,0 +1,86 @@
+---
+import Icon from './Icon.astro';
+import { getUi } from '../i18n/ui.js';
+import { site, waLink } from '../i18n/site.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+
+const channels = [
+  {
+    icon: 'mail',
+    label: t.contact.emailLabel,
+    value: site.email,
+    href: `mailto:${site.email}`,
+    external: false,
+  },
+  {
+    icon: 'linkedin',
+    label: t.contact.linkedinLabel,
+    value: 'in/adriana-acevedo',
+    href: site.linkedin,
+    external: true,
+  },
+  {
+    icon: 'whatsapp',
+    label: t.contact.whatsappLabel,
+    value: site.whatsappDisplay,
+    href: waLink(lang),
+    external: true,
+  },
+];
+---
+
+<section id="contact" class="section-pad scroll-mt-24">
+  <div class="container-page">
+    <div class="rounded-3xl bg-forest px-6 py-12 text-cream md:px-14 md:py-16" data-reveal>
+      <div class="max-w-2xl">
+        <p class="eyebrow mb-3 !text-cream/70">{t.contact.eyebrow}</p>
+        <h2 class="h-section text-cream">{t.contact.heading}</h2>
+        <p class="mt-4 text-lg text-cream/80">{t.contact.intro}</p>
+      </div>
+
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          channels.map((c) => (
+            <a
+              href={c.href}
+              target={c.external ? '_blank' : undefined}
+              rel={c.external ? 'noopener noreferrer' : undefined}
+              class="group flex items-center gap-4 rounded-2xl border border-cream/20 bg-cream/5 p-5 transition-colors hover:border-cream/50 hover:bg-cream/10"
+            >
+              <span class="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-cream/10 text-cream">
+                <Icon name={c.icon} size={20} />
+              </span>
+              <span class="min-w-0">
+                <span class="block text-xs uppercase tracking-[0.16em] text-cream/60">
+                  {c.label}
+                </span>
+                <span class="block truncate text-sm text-cream">{c.value}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a
+          href={site.cv.en}
+          download
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-cream px-6 py-3 text-sm font-medium text-forest transition-colors hover:bg-white"
+        >
+          <Icon name="download" size={16} />
+          {t.contact.cvEn}
+        </a>
+        <a
+          href={site.cv.es}
+          download
+          class="inline-flex items-center justify-center gap-2 rounded-full border border-cream/40 px-6 py-3 text-sm font-medium text-cream transition-colors hover:border-cream hover:bg-cream/10"
+        >
+          <Icon name="download" size={16} />
+          {t.contact.cvEs}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

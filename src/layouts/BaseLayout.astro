@@ -1,0 +1,139 @@
+---
+import '../styles/global.css';
+import { site } from '../i18n/site.js';
+import { getUi } from '../i18n/ui.js';
+
+const { lang = 'en' } = Astro.props;
+const t = getUi(lang);
+
+const base = Astro.site ?? new URL('https://adrianaacevedo.netlify.app');
+const canonical = new URL(lang === 'es' ? '/es/' : '/', base).href;
+const urlEn = new URL('/', base).href;
+const urlEs = new URL('/es/', base).href;
+const ogImage = new URL('/og-image.png', base).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle:
+    lang === 'es'
+      ? 'Diseñadora UI/UX y Especialista Front-End Web'
+      : 'UI/UX Designer & Front-End Web Specialist',
+  description: t.meta.description,
+  url: canonical,
+  image: ogImage,
+  email: `mailto:${site.email}`,
+  sameAs: [site.linkedin],
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Bogotá',
+    addressCountry: 'CO',
+  },
+  knowsLanguage: ['en', 'es'],
+};
+---
+
+<!doctype html>
+<html lang={t.htmlLang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#F5F0E8" />
+    <meta name="color-scheme" content="light" />
+
+    <title>{t.meta.title}</title>
+    <meta name="description" content={t.meta.description} />
+    <meta name="author" content={site.name} />
+
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={urlEn} />
+    <link rel="alternate" hreflang="es" href={urlEs} />
+    <link rel="alternate" hreflang="x-default" href={urlEn} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.meta.ogAlt} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_CO' : 'en_US'} />
+    <meta property="og:locale:alternate" content={lang === 'es' ? 'en_US' : 'es_CO'} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={t.meta.title} />
+    <meta name="twitter:description" content={t.meta.description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={t.meta.ogAlt} />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <!-- Fonts (max 2 families, font-display: swap) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Mark JS as available before paint so scroll-reveal only hides content
+         when JS can also reveal it. With JS off, nothing is ever hidden. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+
+  <body>
+    <a href="#main" class="sr-skip">{t.skip}</a>
+    <slot />
+
+    <script>
+      // Progressive scroll-reveal. Content is visible by default; this only
+      // adds a short entrance animation when motion is allowed.
+      const revealables = document.querySelectorAll('[data-reveal]');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        revealables.forEach((el) => el.classList.add('is-visible'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries, obs) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                obs.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+        );
+        revealables.forEach((el) => io.observe(el));
+      }
+    </script>
+
+    <style>
+      .sr-skip {
+        position: fixed;
+        left: 1rem;
+        top: -100%;
+        z-index: 100;
+        background: #2d4a3e;
+        color: #f5f0e8;
+        padding: 0.6rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        transition: top 0.2s ease;
+      }
+      .sr-skip:focus {
+        top: 1rem;
+      }
+    </style>
+  </body>
+</html>
